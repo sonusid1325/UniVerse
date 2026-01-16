@@ -28,7 +28,7 @@ fun QuickActionCard(action: QuickAction) {
         modifier = Modifier.width(80.dp)
     ) {
         Surface(
-            onClick = { /* Action */ },
+            onClick = { action.onClick() },
             modifier = Modifier.size(72.dp),
             shape = RoundedCornerShape(20.dp),
             color = action.containerColor,

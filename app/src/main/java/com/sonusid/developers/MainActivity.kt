@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.sonusid.developers.presentation.EventsManagementScreen
 import com.sonusid.developers.presentation.HomeScreen
 import com.sonusid.developers.presentation.ProfileScreen
 import com.sonusid.developers.ui.theme.UniVerseTheme
@@ -20,10 +21,13 @@ class MainActivity : ComponentActivity() {
             var currentScreen by remember { mutableStateOf("home") }
             
             UniVerseTheme {
-                if (currentScreen == "home") {
-                    HomeScreen(onProfileClick = { currentScreen = "profile" })
-                } else {
-                    ProfileScreen(onBackClick = { currentScreen = "home" })
+                when (currentScreen) {
+                    "home" -> HomeScreen(
+                        onProfileClick = { currentScreen = "profile" },
+                        onEventsClick = { currentScreen = "events" }
+                    )
+                    "profile" -> ProfileScreen(onBackClick = { currentScreen = "home" })
+                    "events" -> EventsManagementScreen(onBackClick = { currentScreen = "home" })
                 }
             }
         }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -20,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -36,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -57,7 +54,8 @@ import com.sonusid.developers.ui.theme.UniVerseTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onProfileClick: () -> Unit = {}) {
+fun HomeScreen(onProfileClick: () -> Unit = {},
+               onEventsClick: () -> Unit = {}) {
     val events = remember {
         listOf(
             Event("1", "Tech Workshop", "Today", "2:00 PM", "Room 301", 45, "Workshop", true),
@@ -71,13 +69,14 @@ fun HomeScreen(onProfileClick: () -> Unit = {}) {
         listOf(
             QuickAction(
                 "Check In",
-                ActionIcon.Vector(Icons.Default.QrCodeScanner),
+                ActionIcon.Drawable(R.drawable.scan_qr_code),
                 Color(0xFF4CAF50),
-                Color(0xFFE8F5E9)
+                Color(0xFFE8F5E9),
+                {}
             ),
-            QuickAction("Events", ActionIcon.Drawable(R.drawable.calendar), Color(0xFF2196F3), Color(0xFFE3F2FD)),
-            QuickAction("Community", ActionIcon.Drawable(R.drawable.user_round), Color(0xFF9C27B0), Color(0xFFF3E5F5)),
-            QuickAction("Trending", ActionIcon.Vector(Icons.AutoMirrored.Filled.TrendingUp), Color(0xFFFF9800), Color(0xFFFFF3E0))
+            QuickAction("Events", ActionIcon.Drawable(R.drawable.calendar), Color(0xFF2196F3), Color(0xFFE3F2FD), onEventsClick),
+            QuickAction("Community", ActionIcon.Drawable(R.drawable.user_round), Color(0xFF9C27B0), Color(0xFFF3E5F5), {}),
+            QuickAction("Trending", ActionIcon.Vector(Icons.AutoMirrored.Filled.TrendingUp), Color(0xFFFF9800), Color(0xFFFFF3E0), {})
         )
     }
 
@@ -138,7 +137,7 @@ fun HomeScreen(onProfileClick: () -> Unit = {}) {
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(16.dp),
-                icon = { Icon(painter = painterResource(R.drawable.qr_code), "Scan") },
+                icon = { Icon(painter = painterResource(R.drawable.scan_qr_code), "Scan") },
                 text = { Text("Quick Scan") }
             )
         }
@@ -215,3 +214,4 @@ fun HomeScreenPreviewDark() {
         }
     }
 }
+

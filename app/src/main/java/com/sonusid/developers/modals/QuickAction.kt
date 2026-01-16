@@ -12,5 +12,6 @@ data class QuickAction(
     val title: String,
     val icon: ActionIcon,
     val color: Color,
-    val containerColor: Color
+    val containerColor: Color,
+    val onClick: () -> Unit = {}
 )
