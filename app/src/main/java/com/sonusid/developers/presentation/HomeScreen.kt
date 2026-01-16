@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -35,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -55,7 +57,7 @@ import com.sonusid.developers.ui.theme.UniVerseTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onProfileClick: () -> Unit = {}) {
     val events = remember {
         listOf(
             Event("1", "Tech Workshop", "Today", "2:00 PM", "Room 301", 45, "Workshop", true),
@@ -110,7 +112,7 @@ fun HomeScreen() {
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
-                        onClick = { /* Profile */ },
+                        onClick = onProfileClick,
                         modifier = Modifier
                             .padding(end = 8.dp)
                             .size(40.dp)
@@ -192,6 +194,7 @@ fun HomeScreen() {
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
