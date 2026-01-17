@@ -15,25 +15,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sonusid.developers.components.EventCard
 import com.sonusid.developers.modals.Event
+import com.sonusid.developers.viewmodels.EventViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventsManagementScreen(onBackClick: () -> Unit = {}) {
+fun EventsManagementScreen(
+    viewModel: EventViewModel,
+    onBackClick: () -> Unit = {},
+    onEventClick: (Event) -> Unit = {}
+) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Joined", "Hosted")
 
-    val joinedEvents = remember {
-        listOf(
-            Event("1", "Tech Workshop", "Today", "2:00 PM", "Room 301", 45, "Workshop", true),
-            Event("4", "Design Sprint", "Mon, Jan 20", "3:00 PM", "Creative Space", 24, "Design")
-        )
-    }
-
-    val hostedEvents = remember {
-        listOf(
-            Event("2", "Coding Bootcamp", "Tomorrow", "10:00 AM", "Lab A", 32, "Education")
-        )
-    }
+    // In a real app, these would come from the ViewModel's state
+    val joinedEvents = viewModel.events.filter { it.id == "1" || it.id == "4" }
+    val hostedEvents = viewModel.events.filter { it.id == "2" }
 
     Scaffold(
         topBar = {
@@ -116,7 +112,10 @@ fun EventsManagementScreen(onBackClick: () -> Unit = {}) {
                     }
                 } else {
                     items(currentEvents) { event ->
-                        EventCard(event)
+                        EventCard(
+                            event = event,
+                            onClick = { onEventClick(event) }
+                        )
                     }
                 }
             }
