@@ -30,12 +30,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.sonusid.developers.components.EventCard
 import com.sonusid.developers.modals.Event
 import com.sonusid.developers.viewmodels.EventViewModel
+import kotlin.math.sin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,9 +136,9 @@ fun CommunityDetailScreen(
             contentPadding = PaddingValues(bottom = 80.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header Hero Section with Animation
+            // Header Hero Section with Lava Lamp Animation
             item {
-                AnimatedBanner(communityName)
+                AnimatedLavaBanner(communityName)
             }
 
             // About Section with Animation
@@ -232,54 +235,83 @@ fun CommunityDetailScreen(
 }
 
 @Composable
-fun AnimatedBanner(communityName: String) {
-    val infiniteTransition = rememberInfiniteTransition(label = "banner_infinite")
+fun AnimatedLavaBanner(communityName: String) {
+    val infiniteTransition = rememberInfiniteTransition(label = "lava_lamp")
     
-    val blobOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 20f,
+    val blob1Y by infiniteTransition.animateFloat(
+        initialValue = 0.2f,
+        targetValue = 0.8f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
+            animation = tween(8000, easing = EaseInOutSine),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "blob"
+        label = "blob1"
+    )
+
+    val blob2Y by infiniteTransition.animateFloat(
+        initialValue = 0.7f,
+        targetValue = 0.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(10000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "blob2"
+    )
+
+    val blob3Scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(6000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "blob3Scale"
     )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(160.dp)
+            .height(180.dp)
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(32.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)),
+            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)),
         contentAlignment = Alignment.Center
     ) {
-        // Animated background blobs
-        Canvas(modifier = Modifier.fillMaxSize().blur(30.dp)) {
+        val primary = MaterialTheme.colorScheme.primary
+        val secondary = MaterialTheme.colorScheme.secondary
+        val tertiary = MaterialTheme.colorScheme.tertiary
+
+        // Lava Lamp blobs
+        Canvas(modifier = Modifier.fillMaxSize().blur(45.dp)) {
             drawCircle(
-                color = Color.Cyan.copy(alpha = 0.2f),
-                radius = size.width / 2.5f,
-                center = Offset(size.width * 0.2f + blobOffset, size.height * 0.5f)
+                color = primary.copy(alpha = 0.35f),
+                radius = size.width / 3f,
+                center = Offset(size.width * 0.25f, size.height * blob1Y)
             )
             drawCircle(
-                color = Color.Magenta.copy(alpha = 0.15f),
-                radius = size.width / 3f,
-                center = Offset(size.width * 0.8f - blobOffset, size.height * 0.3f)
+                color = secondary.copy(alpha = 0.3f),
+                radius = size.width / 2.5f,
+                center = Offset(size.width * 0.75f, size.height * blob2Y)
+            )
+            drawCircle(
+                color = tertiary.copy(alpha = 0.25f),
+                radius = (size.width / 4f) * blob3Scale,
+                center = Offset(size.width * 0.5f, size.height * 0.5f)
             )
         }
 
         Surface(
-            modifier = Modifier.size(80.dp),
+            modifier = Modifier.size(84.dp),
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 4.dp,
-            shadowElevation = 8.dp
+            tonalElevation = 6.dp,
+            shadowElevation = 10.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Default.Group,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(42.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
