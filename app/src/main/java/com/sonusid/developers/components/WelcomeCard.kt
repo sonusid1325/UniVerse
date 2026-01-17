@@ -20,46 +20,46 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun WelcomeCard() {
-    // Using MaterialTheme.colorScheme to determine the right content color
-    val backgroundColor1 = MaterialTheme.colorScheme.primary
-    val backgroundColor2 = MaterialTheme.colorScheme.tertiary
-    val contentColor = MaterialTheme.colorScheme.onPrimary // This automatically flips for Dark/Light
+    // Using a more vibrant gradient mix from the MD3 palette
+    val gradientColors = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.tertiary
+    )
+    val contentColor = MaterialTheme.colorScheme.onPrimary 
     
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(170.dp),
+            .height(180.dp),
         shape = RoundedCornerShape(32.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.linearGradient(
-                        colors = listOf(
-                            backgroundColor1,
-                            backgroundColor2
-                        )
+                        colors = gradientColors,
+                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                        end = androidx.compose.ui.geometry.Offset(1000f, 1000f)
                     )
                 )
         ) {
-            // Expressive Decorative Elements (MD3 style)
-            // Using contentColor with alpha ensures visibility in both themes
+            // Enhanced Decorative Elements for vibrancy and depth
             Box(
                 modifier = Modifier
-                    .size(180.dp)
-                    .offset(x = 220.dp, y = (-60).dp)
-                    .graphicsLayer(alpha = 0.12f)
+                    .size(200.dp)
+                    .offset(x = 200.dp, y = (-80).dp)
+                    .graphicsLayer(alpha = 0.15f)
                     .background(contentColor, RoundedCornerShape(100.dp))
             )
             
             Box(
                 modifier = Modifier
-                    .size(120.dp)
-                    .offset(x = (-30).dp, y = 110.dp)
-                    .graphicsLayer(alpha = 0.08f)
+                    .size(140.dp)
+                    .offset(x = (-40).dp, y = 120.dp)
+                    .graphicsLayer(alpha = 0.1f)
                     .background(contentColor, RoundedCornerShape(100.dp))
             )
 
@@ -69,23 +69,22 @@ fun WelcomeCard() {
                     .padding(horizontal = 28.dp, vertical = 24.dp),
                 verticalArrangement = Arrangement.Center
             ) {
-                // Category Chip using Surface for MD3 compliance
                 Surface(
-                    color = contentColor.copy(alpha = 0.15f),
+                    color = contentColor.copy(alpha = 0.2f),
                     shape = RoundedCornerShape(100.dp),
                     modifier = Modifier.padding(bottom = 16.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Icon(
                             Icons.Default.AutoAwesome,
                             contentDescription = null,
-                            modifier = Modifier.size(12.dp),
+                            modifier = Modifier.size(14.dp),
                             tint = contentColor
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "CAMPUS HUB",
                             style = MaterialTheme.typography.labelSmall,
@@ -99,7 +98,7 @@ fun WelcomeCard() {
                 Text(
                     "Hey Sonu! 👋",
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontFamily = FontFamily.Serif, // Claude-like elegant font
+                        fontFamily = FontFamily.Serif,
                         lineHeight = 36.sp,
                         letterSpacing = (-0.5).sp
                     ),
@@ -107,30 +106,29 @@ fun WelcomeCard() {
                     color = contentColor
                 )
                 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     "Discover what's happening in your UniVerse.",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
-                    color = contentColor.copy(alpha = 0.85f),
-                    lineHeight = 20.sp
+                    color = contentColor.copy(alpha = 0.9f),
+                    lineHeight = 22.sp
                 )
             }
             
-            // Large floating icon for expressive visual
             Icon(
                 Icons.Default.AutoAwesome,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(140.dp)
                     .align(Alignment.BottomEnd)
-                    .offset(x = 20.dp, y = 20.dp)
+                    .offset(x = 30.dp, y = 30.dp)
                     .graphicsLayer(
-                        alpha = 0.2f,
-                        rotationZ = -20f,
-                        scaleX = 1.2f,
-                        scaleY = 1.2f
+                        alpha = 0.25f,
+                        rotationZ = -25f,
+                        scaleX = 1.3f,
+                        scaleY = 1.3f
                     ),
                 tint = contentColor
             )

@@ -8,9 +8,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.sonusid.developers.modals.Event
 import com.sonusid.developers.presentation.EventsManagementScreen
 import com.sonusid.developers.presentation.HomeScreen
 import com.sonusid.developers.presentation.ProfileScreen
+import com.sonusid.developers.presentation.ViewEvent
 import com.sonusid.developers.ui.theme.UniVerseTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var currentScreen by remember { mutableStateOf("home") }
+            var currentScreen by remember { mutableStateOf("event") }
             
             UniVerseTheme {
                 when (currentScreen) {
@@ -28,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     )
                     "profile" -> ProfileScreen(onBackClick = { currentScreen = "home" })
                     "events" -> EventsManagementScreen(onBackClick = { currentScreen = "home" })
+                    "event" -> ViewEvent(event = Event("1", "Tech Workshop", "Friday, Jan 19", "2:00 PM", "Room 301", 45, "Workshop", true))
                 }
             }
         }
