@@ -8,5 +8,6 @@ data class Event(
     val location: String,
     val attendees: Int,
     val category: String,
-    val isLive: Boolean = false
+    val isLive: Boolean = false,
+    val hostCommunityId: String? = null
 )

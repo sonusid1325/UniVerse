@@ -29,6 +29,9 @@ object EventsManagementRoute
 object CheckInRoute
 
 @Serializable
+object CommunitiesRoute
+
+@Serializable
 data class ViewEventRoute(
     val id: String,
     val title: String,
@@ -86,6 +89,7 @@ fun UniVerseNavHost(
                 onProfileClick = { navController.navigate(ProfileRoute) },
                 onEventsClick = { navController.navigate(EventsManagementRoute) },
                 onCheckInClick = { navController.navigate(CheckInRoute) },
+                onCommunityClick = { navController.navigate(CommunitiesRoute) },
                 onEventClick = { event ->
                     navController.navigate(
                         ViewEventRoute(
@@ -132,6 +136,14 @@ fun UniVerseNavHost(
             CheckInScreen(
                 viewModel = eventViewModel,
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<CommunitiesRoute> {
+            CommunityScreen(
+                viewModel = eventViewModel,
+                onBackClick = { navController.popBackStack() },
+                onCommunityClick = { /* Navigate to Community Detail */ }
             )
         }
 

@@ -56,6 +56,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onEventsClick: () -> Unit = {},
     onCheckInClick: () -> Unit = {},
+    onCommunityClick: () -> Unit = {},
     onEventClick: (Event) -> Unit = {}
 ) {
     val events = viewModel.events
@@ -70,7 +71,7 @@ fun HomeScreen(
                 onCheckInClick
             ),
             QuickAction("Events", ActionIcon.Drawable(R.drawable.calendar), Color(0xFF2196F3), Color(0xFFE3F2FD), onEventsClick),
-            QuickAction("Community", ActionIcon.Drawable(R.drawable.user_round), Color(0xFF9C27B0), Color(0xFFF3E5F5), {}),
+            QuickAction("Community", ActionIcon.Drawable(R.drawable.user_round), Color(0xFF9C27B0), Color(0xFFF3E5F5), onCommunityClick),
             QuickAction("Trending", ActionIcon.Vector(Icons.AutoMirrored.Filled.TrendingUp), Color(0xFFFF9800), Color(0xFFFFF3E0), {})
         )
     }
