@@ -55,4 +55,8 @@ class EventViewModel : ViewModel() {
     fun getEventsByCommunity(communityId: String): List<Event> {
         return events.filter { it.hostCommunityId == communityId }
     }
+
+    fun addEvent(event: Event) {
+        events = events + event
+    }
 }

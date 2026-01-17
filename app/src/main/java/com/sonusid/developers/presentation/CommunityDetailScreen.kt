@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import com.sonusid.developers.components.EventCard
 import com.sonusid.developers.modals.Event
 import com.sonusid.developers.viewmodels.EventViewModel
-import kotlin.math.sin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +47,7 @@ fun CommunityDetailScreen(
     memberCount: Int,
     isAdmin: Boolean,
     onBackClick: () -> Unit = {},
+    onPostEventClick: () -> Unit = {},
     onEventClick: (Event) -> Unit = {}
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -115,7 +115,7 @@ fun CommunityDetailScreen(
                 exit = scaleOut() + fadeOut()
             ) {
                 ExtendedFloatingActionButton(
-                    onClick = { /* Create event */ },
+                    onClick = onPostEventClick,
                     modifier = Modifier.scale(fabScale),
                     icon = { Icon(Icons.Default.Add, null) },
                     text = { Text("Post Event") },

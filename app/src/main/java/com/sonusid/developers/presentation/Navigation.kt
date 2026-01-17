@@ -36,6 +36,9 @@ object CheckInRoute
 object CommunitiesRoute
 
 @Serializable
+data class PostEventRoute(val communityId: String)
+
+@Serializable
 data class CommunityDetailRoute(
     val id: String,
     val name: String,
@@ -187,6 +190,9 @@ fun UniVerseNavHost(
                     memberCount = route.memberCount,
                     isAdmin = route.isAdmin,
                     onBackClick = { navController.popBackStack() },
+                    onPostEventClick = {
+                        navController.navigate(PostEventRoute(communityId = route.id))
+                    },
                     onEventClick = { event ->
                         navController.navigate(
                             ViewEventRoute(
@@ -201,6 +207,16 @@ fun UniVerseNavHost(
                             )
                         )
                     }
+                )
+            }
+
+            composable<PostEventRoute> { backStackEntry ->
+                val route: PostEventRoute = backStackEntry.toRoute()
+                PostEventScreen(
+                    viewModel = eventViewModel,
+                    communityId = route.communityId,
+                    onBackClick = { navController.popBackStack() },
+                    onEventPosted = { navController.popBackStack() }
                 )
             }
 
