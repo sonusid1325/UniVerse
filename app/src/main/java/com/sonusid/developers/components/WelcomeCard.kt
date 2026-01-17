@@ -6,18 +6,27 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -29,7 +38,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.sin
 
 @Composable
-fun WelcomeCard() {
+fun WelcomeCard(onExploreClick: () -> Unit = {}) {
     var visible by remember { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
@@ -39,7 +48,6 @@ fun WelcomeCard() {
 
     val infiniteTransition = rememberInfiniteTransition(label = "welcome_lava_infinite")
     
-    // Lava Lamp movement - Vertical floating
     val blob1Y by infiniteTransition.animateFloat(
         initialValue = 0.1f,
         targetValue = 0.9f,
@@ -70,7 +78,6 @@ fun WelcomeCard() {
         label = "blob3"
     )
 
-    // Pulse for the icon in the badge
     val iconPulse by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.3f,
@@ -81,7 +88,6 @@ fun WelcomeCard() {
         label = "icon_pulse"
     )
 
-    // Shine effect sweep
     val shineProgress by infiniteTransition.animateFloat(
         initialValue = -1f,
         targetValue = 2f,
@@ -92,7 +98,6 @@ fun WelcomeCard() {
         label = "shine"
     )
 
-    // Entrance animation progress
     val entranceProgress by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
         animationSpec = spring(
@@ -105,12 +110,11 @@ fun WelcomeCard() {
     val primaryColor = MaterialTheme.colorScheme.primary
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
-    val onPrimary = MaterialTheme.colorScheme.onPrimary
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(210.dp)
+            .height(240.dp)
             .graphicsLayer {
                 rotationX = (1f - entranceProgress) * 12f
                 scaleX = 0.95f + (entranceProgress * 0.05f)
@@ -135,157 +139,205 @@ fun WelcomeCard() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            // Lava Lamp Mesh - tricolor mix
-            Canvas(modifier = Modifier.fillMaxSize().blur(50.dp)) {
+            // High-Quality Lava Lamp Background
+            Canvas(modifier = Modifier.fillMaxSize().blur(60.dp)) {
                 drawCircle(
-                    color = primaryColor.copy(alpha = 0.4f),
-                    radius = size.width * 0.5f,
+                    color = primaryColor.copy(alpha = 0.45f),
+                    radius = size.width * 0.6f,
                     center = Offset(size.width * 0.2f, size.height * blob1Y)
                 )
                 drawCircle(
-                    color = secondaryColor.copy(alpha = 0.35f),
-                    radius = size.width * 0.45f,
+                    color = secondaryColor.copy(alpha = 0.4f),
+                    radius = size.width * 0.5f,
                     center = Offset(size.width * 0.8f, size.height * blob2Y)
                 )
                 drawCircle(
-                    color = tertiaryColor.copy(alpha = 0.3f),
-                    radius = (size.width * 0.35f) * blob3Scale,
+                    color = tertiaryColor.copy(alpha = 0.35f),
+                    radius = (size.width * 0.4f) * blob3Scale,
                     center = Offset(size.width * 0.5f, size.height * 0.5f)
                 )
             }
 
-            // Floating Particles
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val time = (System.currentTimeMillis() % 10000) / 10000f
-                val particles = listOf(
-                    Offset(0.15f, 0.25f), Offset(0.75f, 0.2f), 
-                    Offset(0.35f, 0.85f), Offset(0.9f, 0.75f),
-                    Offset(0.05f, 0.65f)
-                )
-                
-                particles.forEachIndexed { index, baseOffset ->
-                    val x = size.width * baseOffset.x + (sin(time * 2 * Math.PI + index) * 10f).toFloat()
-                    val y = size.height * baseOffset.y + (sin(time * 2 * Math.PI + index * 2) * 10f).toFloat()
-                    
-                    drawCircle(
-                        color = Color.White.copy(alpha = 0.25f),
-                        radius = 2.5.dp.toPx(),
-                        center = Offset(x, y)
-                    )
-                }
-            }
-
-            // Subtle Shine Overlay
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.White.copy(alpha = 0.15f),
-                                Color.White.copy(alpha = 0.08f),
-                                Color.Transparent
-                            ),
-                            start = Offset(shineProgress * 1200f, 0f),
-                            end = Offset(shineProgress * 1200f + 400f, 800f)
-                        )
-                    )
-            )
-
-            // Content Column
+            // Expressive Content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(28.dp),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Badge Section
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = slideInHorizontally { -40 } + fadeIn()
-                ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(100.dp),
-                        modifier = Modifier.padding(bottom = 12.dp)
+                Column {
+                    // Modern Badge
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = slideInHorizontally { -40 } + fadeIn()
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        Surface(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(100.dp),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                            modifier = Modifier.padding(bottom = 12.dp)
                         ) {
-                            Icon(
-                                Icons.Default.AutoAwesome,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(14.dp)
-                                    .graphicsLayer {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp).graphicsLayer {
                                         scaleX = iconPulse
                                         scaleY = iconPulse
                                     },
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "PREMIUM CAMPUS HUB",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.primary,
-                                letterSpacing = 1.2.sp
-                            )
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "PREMIUM CAMPUS",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Black,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    letterSpacing = 1.5.sp
+                                )
+                            }
                         }
+                    }
+
+                    // Title with high contrast
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(tween(800, delayMillis = 200)) + 
+                                scaleIn(spring(dampingRatio = Spring.DampingRatioMediumBouncy), initialScale = 0.85f)
+                    ) {
+                        Text(
+                            "Hey Sonu! 👋",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                letterSpacing = (-1.5).sp
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Subtitle
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(tween(800, delayMillis = 400)) + slideInVertically { 20 }
+                    ) {
+                        Text(
+                            "Your academic universe is ready.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
 
-                // Greeting Title
+                // Expressive Call to Action Button
                 AnimatedVisibility(
                     visible = visible,
-                    enter = fadeIn(tween(800, delayMillis = 200)) + 
-                            scaleIn(spring(dampingRatio = Spring.DampingRatioMediumBouncy), initialScale = 0.85f)
+                    enter = fadeIn(tween(800, delayMillis = 600)) + scaleIn(spring(dampingRatio = Spring.DampingRatioLowBouncy), initialScale = 0.8f)
                 ) {
-                    Text(
-                        "Hey Sonu! 👋",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            letterSpacing = (-1.2).sp
-                        )
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Welcome Subtitle
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(tween(800, delayMillis = 400)) + 
-                            slideInVertically { 20 }
-                ) {
-                    Text(
-                        "Your academic universe is ready for exploration.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    ExpressiveExploreButton(onClick = onExploreClick)
                 }
             }
 
-            // Large Decorative Background Icon
+            // Decorative background element
             Icon(
                 Icons.Default.AutoAwesome,
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(160.dp)
-                    .offset(x = 40.dp, y = 40.dp)
+                    .size(180.dp)
+                    .offset(x = 50.dp, y = 50.dp)
                     .graphicsLayer {
-                        alpha = 0.1f
-                        rotationZ = 12f + (blob1Y * 10f)
+                        alpha = 0.08f
+                        rotationZ = 12f + (blob1Y * 15f)
                     },
                 tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+fun ExpressiveExploreButton(onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.94f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "scale"
+    )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "button_glow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow"
+    )
+
+    Box(
+        modifier = Modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(20.dp),
+                ambientColor = MaterialTheme.colorScheme.primary.copy(alpha = glowAlpha),
+                spotColor = MaterialTheme.colorScheme.primary
+            )
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = ripple(),
+                onClick = onClick
+            )
+            .padding(horizontal = 24.dp, vertical = 14.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                Icons.Default.Explore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                "Explore Events",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onPrimary,
+                letterSpacing = 0.5.sp
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                Icons.Default.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+                modifier = Modifier.size(20.dp)
             )
         }
     }

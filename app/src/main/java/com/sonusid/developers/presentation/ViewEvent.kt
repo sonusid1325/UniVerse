@@ -7,6 +7,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,6 +35,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +46,8 @@ import com.sonusid.developers.modals.Community
 import com.sonusid.developers.modals.Event
 import com.sonusid.developers.states.EventRegistrationState
 import com.sonusid.developers.viewmodels.EventViewModel
+import kotlinx.coroutines.delay
+import kotlin.math.sin
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,16 +61,22 @@ fun ViewEvent(
     val registrationState = viewModel.registrationState
     val scrollState = rememberScrollState()
     val hostCommunity = viewModel.communities.find { it.id == event.hostCommunityId }
+    var contentVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(100)
+        contentVisible = true
+    }
     
     Scaffold(
         topBar = {
             LargeTopAppBar(
                 title = { 
                     Text(
-                        "Event Details", 
+                        "Event Explorer", 
                         style = MaterialTheme.typography.headlineSmall.copy(
-                            fontFamily = FontFamily.Serif, 
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = (-0.5).sp
                         )
                     ) 
                 },
@@ -75,7 +87,7 @@ fun ViewEvent(
                 },
                 actions = {
                     IconButton(onClick = { /* Share */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share")
+                        Icon(Icons.Default.IosShare, contentDescription = "Share")
                     }
                 },
                 colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -92,78 +104,138 @@ fun ViewEvent(
                     .padding(paddingValues)
                     .verticalScroll(scrollState)
             ) {
-                // Animated Lava Lamp Header
-                Box(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-                    EventLavaHeader(event)
+                // High-End Lava Lamp Header
+                AnimatedVisibility(
+                    visible = contentVisible,
+                    enter = fadeIn(tween(600)) + scaleIn(tween(600, easing = EaseOutBack), initialScale = 0.92f)
+                ) {
+                    Box(modifier = Modifier.padding(20.dp)) {
+                        EventLavaBannerExpressive(event)
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Tags with entrance animation
-                TagsSection(listOf("Technology", "Networking", "Career", "Workshop", "Innovation", "Development"))
-
-                Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "About Event",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        "Join us for an exciting ${event.title} in ${event.location}. This ${event.category} session will cover the latest trends and hands-on practices to help you excel in your campus journey. Don't miss out on this opportunity to connect with peers and experts!",
-                        style = MaterialTheme.typography.bodyLarge,
-                        lineHeight = 28.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    
-                    Spacer(modifier = Modifier.height(32.dp))
-                    
-                    hostCommunity?.let { community ->
-                        HostSectionExpressive(community, onCommunityClick)
+                // Staggered Entrance for Content
+                StaggeredVerticalEntrance(visible = contentVisible, delay = 200) {
+                    // Information Grid
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        InfoChipExpressive(Icons.Default.CalendarToday, event.date, "Date", Modifier.weight(1f))
+                        InfoChipExpressive(Icons.Default.Schedule, event.time, "Time", Modifier.weight(1f))
                     }
-                    
-                    Spacer(modifier = Modifier.height(40.dp))
-                    
-                    // Registration Button with animation
-                    AnimatedContent(
-                        targetState = registrationState,
-                        transitionSpec = {
-                            fadeIn() + scaleIn(initialScale = 0.9f) togetherWith fadeOut() + scaleOut(targetScale = 0.9f)
-                        },
-                        label = "registration_state"
-                    ) { state ->
-                        when (state) {
-                            is EventRegistrationState.NotRegistered -> {
-                                Button(
-                                    onClick = { viewModel.registerForEvent() },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(64.dp),
-                                    shape = RoundedCornerShape(20.dp),
-                                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.ConfirmationNumber, contentDescription = null)
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Text("Register for Free", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                    }
-                                }
+                }
+
+                StaggeredVerticalEntrance(visible = contentVisible, delay = 300) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    // Location Section
+                    Surface(
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Place, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
                             }
-                            is EventRegistrationState.Registered -> {
-                                WaitingState(
-                                    onRevoke = { viewModel.revokeRegistration() }, 
-                                    onDebugApprove = { viewModel.approveRegistration("UV-${event.id}-9942") }
-                                )
-                            }
-                            is EventRegistrationState.Going -> {
-                                ExpressiveTicket(state.qrValue, onRevoke = { viewModel.revokeRegistration() })
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text("Venue Location", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                Text(event.location, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.ExtraBold)
                             }
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(40.dp))
+                }
+
+                StaggeredVerticalEntrance(visible = contentVisible, delay = 400) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    TagsSectionExpressive(listOf("Technology", "Workshop", "Campus", "SkillUp"))
+                }
+
+                StaggeredVerticalEntrance(visible = contentVisible, delay = 500) {
+                    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
+                        Text(
+                            "About this Event",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            "Dive into the world of ${event.category} with this exclusive session. Hosted by professionals, this event aims to provide hands-on experience and deep insights into modern industry practices. Join your peers for an unforgettable learning journey.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            lineHeight = 28.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        hostCommunity?.let { community ->
+                            HostSectionExpressiveRefined(community, onCommunityClick)
+                        }
+                        
+                        Spacer(modifier = Modifier.height(40.dp))
+                        
+                        // Registration CTA
+                        AnimatedContent(
+                            targetState = registrationState,
+                            transitionSpec = {
+                                fadeIn() + scaleIn(initialScale = 0.9f) togetherWith fadeOut() + scaleOut(targetScale = 0.9f)
+                            },
+                            label = "registration_state"
+                        ) { state ->
+                            when (state) {
+                                is EventRegistrationState.NotRegistered -> {
+                                    Button(
+                                        onClick = { viewModel.registerForEvent() },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(68.dp)
+                                            .graphicsLayer {
+                                                shadowElevation = 8.dp.toPx()
+                                                shape = RoundedCornerShape(24.dp)
+                                                clip = true
+                                            },
+                                        shape = RoundedCornerShape(24.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.Bolt, null)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Register Now", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+                                        }
+                                    }
+                                }
+                                is EventRegistrationState.Registered -> {
+                                    WaitingStateRefined(
+                                        onRevoke = { viewModel.revokeRegistration() }, 
+                                        onDebugApprove = { viewModel.approveRegistration("UV-${event.id}-CONFIRMED") }
+                                    )
+                                }
+                                is EventRegistrationState.Going -> {
+                                    ExpressiveTicketRefined(state.qrValue, onRevoke = { viewModel.revokeRegistration() })
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(40.dp))
+                    }
                 }
             }
         }
@@ -171,114 +243,135 @@ fun ViewEvent(
 }
 
 @Composable
-fun EventLavaHeader(event: Event) {
-    val infiniteTransition = rememberInfiniteTransition(label = "event_lava")
+fun StaggeredVerticalEntrance(visible: Boolean, delay: Int, content: @Composable () -> Unit) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInVertically(tween(600, delayMillis = delay)) { it / 2 } + fadeIn(tween(600, delayMillis = delay))
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun EventLavaBannerExpressive(event: Event) {
+    val infiniteTransition = rememberInfiniteTransition(label = "event_lava_pro")
     
     val blob1X by infiniteTransition.animateFloat(
         initialValue = 0.1f,
         targetValue = 0.9f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec = infiniteRepeatable(tween(8000, easing = LinearOutSlowInEasing), RepeatMode.Reverse),
         label = "blob1"
     )
-
     val blob2Y by infiniteTransition.animateFloat(
         initialValue = 0.2f,
         targetValue = 0.8f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec = infiniteRepeatable(tween(10000, easing = LinearOutSlowInEasing), RepeatMode.Reverse),
         label = "blob2"
     )
-
     val blob3Scale by infiniteTransition.animateFloat(
         initialValue = 0.8f,
-        targetValue = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = LinearOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "blob3Scale"
+        targetValue = 1.4f,
+        animationSpec = infiniteRepeatable(tween(6000, easing = LinearOutSlowInEasing), RepeatMode.Reverse),
+        label = "blob3"
+    )
+    val shineProgress by infiniteTransition.animateFloat(
+        initialValue = -1f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(tween(4000, easing = LinearEasing), RepeatMode.Restart),
+        label = "shine"
     )
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(280.dp)
+            .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(32.dp)),
         shape = RoundedCornerShape(32.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 20.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f))
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             val primary = MaterialTheme.colorScheme.primary
             val secondary = MaterialTheme.colorScheme.secondary
             val tertiary = MaterialTheme.colorScheme.tertiary
 
-            // Lava Lamp background with mixed theme colors
-            Canvas(modifier = Modifier.fillMaxSize().blur(50.dp)) {
-                drawCircle(
-                    color = primary.copy(alpha = 0.4f),
-                    radius = size.width / 2.2f,
-                    center = Offset(size.width * blob1X, size.height * 0.3f)
-                )
-                drawCircle(
-                    color = secondary.copy(alpha = 0.35f),
-                    radius = size.width / 2.5f,
-                    center = Offset(size.width * 0.5f, size.height * blob2Y)
-                )
-                drawCircle(
-                    color = tertiary.copy(alpha = 0.3f),
-                    radius = (size.width / 3f) * blob3Scale,
-                    center = Offset(size.width * (1f - blob1X), size.height * 0.6f)
-                )
+            // Vibrant Lava Lamp Mesh
+            Canvas(modifier = Modifier.fillMaxSize().blur(60.dp)) {
+                drawCircle(color = primary.copy(alpha = 0.5f), radius = size.width / 1.8f, center = Offset(size.width * blob1X, size.height * 0.3f))
+                drawCircle(color = secondary.copy(alpha = 0.45f), radius = size.width / 2f, center = Offset(size.width * 0.5f, size.height * blob2Y))
+                drawCircle(color = tertiary.copy(alpha = 0.4f), radius = (size.width / 2.2f) * blob3Scale, center = Offset(size.width * (1f - blob1X), size.height * 0.7f))
             }
 
-            // Dark overlay for text readability
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.25f)))
-
-            Column(
+            // Shine Sweep
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.1f), Color.Transparent),
+                            start = Offset(shineProgress * 1500f, 0f),
+                            end = Offset(shineProgress * 1500f + 300f, 800f)
+                        )
+                    )
+            )
+
+            // Readability Gradient
+            Box(modifier = Modifier.fillMaxSize().background(
+                Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.1f), Color.Black.copy(alpha = 0.6f)))
+            ))
+
+            // Content
+            Column(
+                modifier = Modifier.fillMaxSize().padding(28.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Surface(
-                    color = Color.White.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(12.dp)
+                    color = Color.White.copy(alpha = 0.25f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
                 ) {
-                    Text(
-                        text = event.category.uppercase(),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, null, tint = Color.White, modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = event.category.uppercase(),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            letterSpacing = 1.5.sp
+                        )
+                    }
                 }
 
                 Column {
                     Text(
                         event.title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            lineHeight = 38.sp,
+                            letterSpacing = (-1).sp
+                        ),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocationOn, null, tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Surface(
+                            modifier = Modifier.size(28.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Icon(Icons.Default.TrendingUp, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.padding(6.dp))
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            event.location,
+                            "Join 120+ attendees interested in ${event.category}",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.8f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            color = Color.White.copy(alpha = 0.9f),
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -288,87 +381,103 @@ fun EventLavaHeader(event: Event) {
 }
 
 @Composable
-fun HostSectionExpressive(community: Community, onCommunityClick: (Community) -> Unit) {
-    Text(
-        "Hosted By",
-        style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.ExtraBold,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-    Card(
-        onClick = { onCommunityClick(community) },
+fun InfoChipExpressive(icon: androidx.compose.ui.graphics.vector.ImageVector, value: String, label: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-        ),
-        modifier = Modifier.fillMaxWidth()
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar with animated border feel
-            Surface(
-                modifier = Modifier.size(60.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape),
+                contentAlignment = Alignment.Center
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        Icons.Default.Group, 
-                        contentDescription = null, 
-                        modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+fun HostSectionExpressiveRefined(community: Community, onCommunityClick: (Community) -> Unit) {
+    Text(
+        "Presented By",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Black,
+        color = MaterialTheme.colorScheme.primary,
+        letterSpacing = 1.sp
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    Card(
+        onClick = { onCommunityClick(community) },
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    ) {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .background(
+                        Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)),
+                        CircleShape
                     )
+                    .padding(2.dp)
+            ) {
+                Surface(modifier = Modifier.fillMaxSize(), shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Group, null, modifier = Modifier.size(32.dp), tint = MaterialTheme.colorScheme.primary)
+                    }
                 }
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        community.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Text(community.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
                     if (community.isAdmin) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Icon(Icons.Default.Verified, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                     }
                 }
-                Text(
-                    "Click to view community",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Text("${community.memberCount} active members", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
             }
-            Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.outline)
+            Icon(Icons.Default.ChevronRight, null, tint = MaterialTheme.colorScheme.primary)
         }
     }
 }
 
 @Composable
-fun TagsSection(tags: List<String>) {
+fun TagsSectionExpressive(tags: List<String>) {
     LazyRow(
-        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = PaddingValues(horizontal = 24.dp)
+        contentPadding = PaddingValues(horizontal = 20.dp)
     ) {
         items(tags) { tag ->
             Surface(
-                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(100.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f))
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
             ) {
                 Text(
-                    text = "#$tag",
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                    text = tag,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                     style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.secondary
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -376,134 +485,75 @@ fun TagsSection(tags: List<String>) {
 }
 
 @Composable
-fun WaitingState(onRevoke: () -> Unit, onDebugApprove: () -> Unit) {
+fun WaitingStateRefined(onRevoke: () -> Unit, onDebugApprove: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-        )
+        shape = RoundedCornerShape(32.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f))
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(modifier = Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(48.dp), 
+                strokeWidth = 5.dp,
                 color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 4.dp
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                "Booking Processing",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                "We're confirming your spot. This usually takes a few seconds.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+            Text("Confirming your spot...", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+            Text("We're validating your request with the community.", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(modifier = Modifier.height(24.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(
-                    onClick = onRevoke,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Cancel")
-                }
-                Button(
-                    onClick = onDebugApprove,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Auto Approve")
-                }
+                TextButton(onClick = onRevoke) { Text("Cancel", fontWeight = FontWeight.Bold) }
+                Button(onClick = onDebugApprove, shape = RoundedCornerShape(16.dp)) { Text("Skip Wait", fontWeight = FontWeight.Bold) }
             }
         }
     }
 }
 
 @Composable
-fun ExpressiveTicket(qrValue: String, onRevoke: () -> Unit) {
+fun ExpressiveTicketRefined(qrValue: String, onRevoke: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "YOUR TICKET",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 2.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Modern QR Container
+        Column(modifier = Modifier.padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("OFFICIAL PASS", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Black, letterSpacing = 3.sp, color = MaterialTheme.colorScheme.primary)
+            Spacer(modifier = Modifier.height(28.dp))
             Surface(
                 modifier = Modifier
                     .size(200.dp)
-                    .padding(8.dp),
+                    .padding(4.dp)
+                    .graphicsLayer {
+                        shadowElevation = 4.dp.toPx()
+                        shape = RoundedCornerShape(24.dp)
+                        clip = true
+                    },
                 shape = RoundedCornerShape(24.dp),
                 color = Color.White,
-                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
+                border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.2f))
             ) {
                 val bitmap = remember(qrValue) { generateQRCode(qrValue) }
-                bitmap?.let {
-                    Image(
-                        bitmap = it.asImageBitmap(),
-                        contentDescription = "QR Code",
-                        modifier = Modifier.fillMaxSize().padding(12.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                }
+                bitmap?.let { Image(bitmap = it.asImageBitmap(), contentDescription = "QR", modifier = Modifier.fillMaxSize().padding(16.dp)) }
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                qrValue,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.outline,
-                fontFamily = FontFamily.Monospace
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Ticket Perforation UI
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(qrValue, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.outline, fontFamily = FontFamily.Monospace)
+            Spacer(modifier = Modifier.height(28.dp))
             Canvas(modifier = Modifier.fillMaxWidth().height(1.dp)) {
-                val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                drawLine(
-                    color = Color.LightGray,
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width, 0f),
-                    pathEffect = pathEffect,
-                    strokeWidth = 2.dp.toPx()
-                )
+                drawLine(color = Color.LightGray, start = Offset(0f, 0f), end = Offset(size.width, 0f), pathEffect = PathEffect.dashPathEffect(floatArrayOf(15f, 15f), 0f), strokeWidth = 2.dp.toPx())
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Spacer(modifier = Modifier.height(28.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column {
                     Text("STATUS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-                    Text("CONFIRMED", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Black, color = Color(0xFF4CAF50))
+                    Text("CONFIRMED", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black, color = Color(0xFF2E7D32))
                 }
-                TextButton(onClick = onRevoke) {
-                    Text("Cancel Ticket", color = MaterialTheme.colorScheme.error)
-                }
+                IconButton(
+                    onClick = onRevoke,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f), CircleShape)
+                ) { Icon(Icons.Default.DeleteOutline, null, tint = MaterialTheme.colorScheme.error) }
             }
         }
     }
