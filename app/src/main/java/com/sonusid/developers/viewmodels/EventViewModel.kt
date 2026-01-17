@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.sonusid.developers.modals.Community
 import com.sonusid.developers.modals.Event
+import com.sonusid.developers.modals.Notification
 import com.sonusid.developers.states.EventRegistrationState
 
 class EventViewModel : ViewModel() {
@@ -25,6 +26,16 @@ class EventViewModel : ViewModel() {
             Community("c2", "Code Wizards", "A community for competitive programming and algorithms.", 450, isAdmin = true),
             Community("c3", "Design Hub", "Focusing on UI/UX and product design.", 800),
             Community("c4", "AI Explorers", "Discovering the latest in Machine Learning and AI.", 600)
+        )
+    )
+        private set
+
+    var notifications by mutableStateOf(
+        listOf(
+            Notification("n1", "New Event!", "GDG has posted a new Tech Workshop.", "2h ago", "Google Developer Group"),
+            Notification("n2", "Registration Success", "You are now registered for Coding Bootcamp.", "5h ago", "Code Wizards"),
+            Notification("n3", "Upcoming Deadline", "Don't forget to submit your project for the Hackathon.", "1d ago", "Google Developer Group"),
+            Notification("n4", "Community Update", "Design Hub has added new resources.", "2d ago", "Design Hub")
         )
     )
         private set
@@ -58,5 +69,11 @@ class EventViewModel : ViewModel() {
 
     fun addEvent(event: Event) {
         events = events + event
+    }
+
+    fun markNotificationAsRead(notificationId: String) {
+        notifications = notifications.map {
+            if (it.id == notificationId) it.copy(isRead = true) else it
+        }
     }
 }

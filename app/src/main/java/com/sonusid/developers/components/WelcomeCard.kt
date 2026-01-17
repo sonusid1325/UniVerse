@@ -1,16 +1,7 @@
 package com.sonusid.developers.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.EaseInOutSine
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
@@ -18,33 +9,12 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -67,27 +37,37 @@ fun WelcomeCard() {
         visible = true
     }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "welcome_card_infinite")
+    val infiniteTransition = rememberInfiniteTransition(label = "welcome_lava_infinite")
     
-    // Floating movement for blobs
-    val blobOffset1 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 20f,
+    // Lava Lamp movement - Vertical floating
+    val blob1Y by infiniteTransition.animateFloat(
+        initialValue = 0.1f,
+        targetValue = 0.9f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = EaseInOutSine),
+            animation = tween(7000, easing = EaseInOutSine),
             repeatMode = RepeatMode.Reverse
         ),
         label = "blob1"
     )
 
-    val blobOffset2 by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = -30f,
+    val blob2Y by infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 0.2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = EaseInOutSine),
+            animation = tween(9000, easing = EaseInOutSine),
             repeatMode = RepeatMode.Reverse
         ),
         label = "blob2"
+    )
+
+    val blob3Scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(5000, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "blob3"
     )
 
     // Pulse for the icon in the badge
@@ -112,7 +92,7 @@ fun WelcomeCard() {
         label = "shine"
     )
 
-    // Entrance 3D rotation and scale
+    // Entrance animation progress
     val entranceProgress by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
         animationSpec = spring(
@@ -130,75 +110,74 @@ fun WelcomeCard() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(210.dp)
             .graphicsLayer {
-                rotationX = (1f - entranceProgress) * 15f
-                scaleX = 0.9f + (entranceProgress * 0.1f)
-                scaleY = 0.9f + (entranceProgress * 0.1f)
+                rotationX = (1f - entranceProgress) * 12f
+                scaleX = 0.95f + (entranceProgress * 0.05f)
+                scaleY = 0.95f + (entranceProgress * 0.05f)
                 alpha = entranceProgress
-                cameraDistance = 12f * density
+                cameraDistance = 15f * density
             }
             .border(
                 width = 1.dp,
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.3f),
+                        Color.White.copy(alpha = 0.4f),
                         Color.Transparent,
-                        Color.White.copy(alpha = 0.1f)
+                        Color.White.copy(alpha = 0.15f)
                     )
                 ),
                 shape = RoundedCornerShape(32.dp)
             ),
         shape = RoundedCornerShape(32.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 20.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(primaryColor)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
         ) {
-            // Dynamic Mesh Gradient
-            Canvas(modifier = Modifier.fillMaxSize().blur(45.dp)) {
+            // Lava Lamp Mesh - tricolor mix
+            Canvas(modifier = Modifier.fillMaxSize().blur(50.dp)) {
                 drawCircle(
-                    color = secondaryColor,
-                    radius = size.width * 0.7f,
-                    center = Offset(
-                        x = size.width * 0.8f + blobOffset1 * 2,
-                        y = size.height * 0.2f + blobOffset2
-                    )
+                    color = primaryColor.copy(alpha = 0.4f),
+                    radius = size.width * 0.5f,
+                    center = Offset(size.width * 0.2f, size.height * blob1Y)
                 )
                 drawCircle(
-                    color = tertiaryColor,
-                    radius = size.width * 0.6f,
-                    center = Offset(
-                        x = size.width * 0.1f - blobOffset2,
-                        y = size.height * 0.9f + blobOffset1 * 1.5f
-                    )
+                    color = secondaryColor.copy(alpha = 0.35f),
+                    radius = size.width * 0.45f,
+                    center = Offset(size.width * 0.8f, size.height * blob2Y)
+                )
+                drawCircle(
+                    color = tertiaryColor.copy(alpha = 0.3f),
+                    radius = (size.width * 0.35f) * blob3Scale,
+                    center = Offset(size.width * 0.5f, size.height * 0.5f)
                 )
             }
 
-            // Floating Particles (The "Little Elements")
+            // Floating Particles
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val time = (System.currentTimeMillis() % 10000) / 10000f
                 val particles = listOf(
-                    Offset(0.2f, 0.3f), Offset(0.7f, 0.15f), 
-                    Offset(0.4f, 0.8f), Offset(0.85f, 0.7f),
-                    Offset(0.1f, 0.6f)
+                    Offset(0.15f, 0.25f), Offset(0.75f, 0.2f), 
+                    Offset(0.35f, 0.85f), Offset(0.9f, 0.75f),
+                    Offset(0.05f, 0.65f)
                 )
                 
                 particles.forEachIndexed { index, baseOffset ->
-                    val x = size.width * baseOffset.x + (sin(time * 2 * Math.PI + index) * 15f).toFloat()
-                    val y = size.height * baseOffset.y + (sin(time * 2 * Math.PI + index * 2) * 15f).toFloat()
+                    val x = size.width * baseOffset.x + (sin(time * 2 * Math.PI + index) * 10f).toFloat()
+                    val y = size.height * baseOffset.y + (sin(time * 2 * Math.PI + index * 2) * 10f).toFloat()
                     
                     drawCircle(
-                        color = Color.White.copy(alpha = 0.2f),
-                        radius = 3.dp.toPx(),
+                        color = Color.White.copy(alpha = 0.25f),
+                        radius = 2.5.dp.toPx(),
                         center = Offset(x, y)
                     )
                 }
             }
 
-            // Shine Sweep
+            // Subtle Shine Overlay
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -206,30 +185,30 @@ fun WelcomeCard() {
                         brush = Brush.linearGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                Color.White.copy(alpha = 0.12f),
-                                Color.White.copy(alpha = 0.05f),
+                                Color.White.copy(alpha = 0.15f),
+                                Color.White.copy(alpha = 0.08f),
                                 Color.Transparent
                             ),
-                            start = Offset(shineProgress * 1000f, 0f),
-                            end = Offset(shineProgress * 1000f + 300f, 600f)
+                            start = Offset(shineProgress * 1200f, 0f),
+                            end = Offset(shineProgress * 1200f + 400f, 800f)
                         )
                     )
             )
 
-            // Content
+            // Content Column
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(28.dp),
                 verticalArrangement = Arrangement.Center
             ) {
-                // Badge
+                // Badge Section
                 AnimatedVisibility(
                     visible = visible,
-                    enter = slideInHorizontally(animationSpec = spring(stiffness = Spring.StiffnessLow)) { -40 } + fadeIn()
+                    enter = slideInHorizontally { -40 } + fadeIn()
                 ) {
                     Surface(
-                        color = Color.White.copy(alpha = 0.15f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(100.dp),
                         modifier = Modifier.padding(bottom = 12.dp)
                     ) {
@@ -246,69 +225,67 @@ fun WelcomeCard() {
                                         scaleX = iconPulse
                                         scaleY = iconPulse
                                     },
-                                tint = onPrimary
+                                tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "PREMIUM CAMPUS",
+                                text = "PREMIUM CAMPUS HUB",
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = onPrimary,
-                                letterSpacing = 1.5.sp
+                                color = MaterialTheme.colorScheme.primary,
+                                letterSpacing = 1.2.sp
                             )
                         }
                     }
                 }
 
-                // Title
+                // Greeting Title
                 AnimatedVisibility(
                     visible = visible,
                     enter = fadeIn(tween(800, delayMillis = 200)) + 
-                            scaleIn(spring(dampingRatio = Spring.DampingRatioMediumBouncy), initialScale = 0.8f)
+                            scaleIn(spring(dampingRatio = Spring.DampingRatioMediumBouncy), initialScale = 0.85f)
                 ) {
                     Text(
                         "Hey Sonu! 👋",
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.Black,
-                            color = onPrimary,
-                            letterSpacing = (-1.5).sp
+                            color = MaterialTheme.colorScheme.onSurface,
+                            letterSpacing = (-1.2).sp
                         )
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                // Subtitle
+                // Welcome Subtitle
                 AnimatedVisibility(
                     visible = visible,
                     enter = fadeIn(tween(800, delayMillis = 400)) + 
-                            slideInVertically(tween(800, delayMillis = 400)) { 20 }
+                            slideInVertically { 20 }
                 ) {
                     Text(
                         "Your academic universe is ready for exploration.",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = onPrimary.copy(alpha = 0.85f),
-                        lineHeight = 22.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 24.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
             }
 
-            // Background Decorative Icon
+            // Large Decorative Background Icon
             Icon(
                 Icons.Default.AutoAwesome,
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(140.dp)
-                    .offset(x = 30.dp, y = 30.dp)
+                    .size(160.dp)
+                    .offset(x = 40.dp, y = 40.dp)
                     .graphicsLayer {
-                        alpha = 0.12f
-                        rotationZ = 15f + blobOffset1 * 0.8f
-                        scaleX = 1.15f
-                        scaleY = 1.15f
+                        alpha = 0.1f
+                        rotationZ = 12f + (blob1Y * 10f)
                     },
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }

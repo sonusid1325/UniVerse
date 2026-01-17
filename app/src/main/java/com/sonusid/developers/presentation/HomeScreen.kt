@@ -31,7 +31,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -60,6 +63,7 @@ fun HomeScreen(
     onEventClick: (Event) -> Unit = {}
 ) {
     val events = viewModel.events
+    var showNotificationSheet by remember { mutableStateOf(false) }
 
     val quickActions = remember {
         listOf(
@@ -73,6 +77,13 @@ fun HomeScreen(
             QuickAction("Events", ActionIcon.Drawable(R.drawable.calendar), Color(0xFF2196F3), Color(0xFFE3F2FD), onEventsClick),
             QuickAction("Community", ActionIcon.Drawable(R.drawable.user_round), Color(0xFF9C27B0), Color(0xFFF3E5F5), onCommunityClick),
             QuickAction("Trending", ActionIcon.Vector(Icons.AutoMirrored.Filled.TrendingUp), Color(0xFFFF9800), Color(0xFFFFF3E0), {})
+        )
+    }
+
+    if (showNotificationSheet) {
+        NotificationSheet(
+            viewModel = viewModel,
+            onDismiss = { showNotificationSheet = false }
         )
     }
 
@@ -96,12 +107,17 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = { /* Notifications */ },
+                        onClick = { showNotificationSheet = true },
                         modifier = Modifier
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     ) {
-                        BadgedBox(badge = { Badge { Text("3") } }) {
+                        val unreadCount = viewModel.notifications.count { !it.isRead }
+                        if (unreadCount > 0) {
+                            BadgedBox(badge = { Badge { Text(unreadCount.toString()) } }) {
+                                Icon(Icons.Outlined.Notifications, "Notifications")
+                            }
+                        } else {
                             Icon(Icons.Outlined.Notifications, "Notifications")
                         }
                     }
