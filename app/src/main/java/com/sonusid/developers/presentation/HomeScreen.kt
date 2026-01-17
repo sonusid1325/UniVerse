@@ -22,7 +22,6 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -38,11 +37,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sonusid.developers.R
 import com.sonusid.developers.components.EventCard
+import com.sonusid.developers.components.ExpressiveNavigationBar
 import com.sonusid.developers.components.QuickActionCard
 import com.sonusid.developers.components.SectionHeader
 import com.sonusid.developers.components.WelcomeCard
@@ -60,6 +59,7 @@ fun HomeScreen(
     onEventsClick: () -> Unit = {},
     onCheckInClick: () -> Unit = {},
     onCommunityClick: () -> Unit = {},
+    onTrendingClick: () -> Unit = {},
     onEventClick: (Event) -> Unit = {}
 ) {
     val events = viewModel.events
@@ -76,7 +76,7 @@ fun HomeScreen(
             ),
             QuickAction("Events", ActionIcon.Drawable(R.drawable.calendar), Color(0xFF2196F3), Color(0xFFE3F2FD), onEventsClick),
             QuickAction("Community", ActionIcon.Drawable(R.drawable.user_round), Color(0xFF9C27B0), Color(0xFFF3E5F5), onCommunityClick),
-            QuickAction("Trending", ActionIcon.Vector(Icons.AutoMirrored.Filled.TrendingUp), Color(0xFFFF9800), Color(0xFFFFF3E0), {})
+            QuickAction("Trending", ActionIcon.Vector(Icons.AutoMirrored.Filled.TrendingUp), Color(0xFFFF9800), Color(0xFFFFF3E0), onTrendingClick)
         )
     }
 
@@ -143,14 +143,18 @@ fun HomeScreen(
                 )
             )
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onCheckInClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp),
-                icon = { Icon(painter = painterResource(R.drawable.scan_qr_code), "Scan") },
-                text = { Text("Quick Scan") }
+        bottomBar = {
+            ExpressiveNavigationBar(
+                currentRoute = "home",
+                onNavigate = { route ->
+                    when (route) {
+                        "home" -> { /* Already here */ }
+                        "events" -> onEventsClick()
+                        "scan" -> onCheckInClick()
+                        "community" -> onCommunityClick()
+                        "profile" -> onProfileClick()
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -163,7 +167,7 @@ fun HomeScreen(
         ) {
             // Welcome Section
             item {
-                WelcomeCard()
+                WelcomeCard(onExploreClick = onEventsClick)
             }
 
             // Quick Actions Section
@@ -198,9 +202,9 @@ fun HomeScreen(
                 EventCard(event, onClick = { onEventClick(event) })
             }
 
-            // Bottom spacing for FAB
+            // Bottom spacing to avoid overlap with Nav Bar
             item {
-                Spacer(modifier = Modifier.height(80.dp))
+                Spacer(modifier = Modifier.height(100.dp))
             }
         }
     }

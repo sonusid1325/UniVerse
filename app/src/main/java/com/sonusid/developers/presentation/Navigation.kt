@@ -36,6 +36,9 @@ object CheckInRoute
 object CommunitiesRoute
 
 @Serializable
+object TrendingRoute
+
+@Serializable
 data class PostEventRoute(val communityId: String)
 
 @Serializable
@@ -113,6 +116,7 @@ fun UniVerseNavHost(
                     onEventsClick = { navController.navigate(EventsManagementRoute) },
                     onCheckInClick = { navController.navigate(CheckInRoute) },
                     onCommunityClick = { navController.navigate(CommunitiesRoute) },
+                    onTrendingClick = { navController.navigate(TrendingRoute) },
                     onEventClick = { event ->
                         navController.navigate(
                             ViewEventRoute(
@@ -174,6 +178,27 @@ fun UniVerseNavHost(
                                 description = community.description,
                                 memberCount = community.memberCount,
                                 isAdmin = community.isAdmin
+                            )
+                        )
+                    }
+                )
+            }
+
+            composable<TrendingRoute> {
+                TrendingScreen(
+                    viewModel = eventViewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onEventClick = { event ->
+                        navController.navigate(
+                            ViewEventRoute(
+                                id = event.id,
+                                title = event.title,
+                                date = event.date,
+                                time = event.time,
+                                location = event.location,
+                                category = event.category,
+                                isLive = event.isLive,
+                                attendees = event.attendees
                             )
                         )
                     }
