@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var currentScreen by remember { mutableStateOf("event") }
+            var currentScreen by remember { mutableStateOf("home") }
             
             UniVerseTheme {
                 when (currentScreen) {
