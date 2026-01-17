@@ -1,7 +1,7 @@
 package com.sonusid.developers.presentation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,6 +26,9 @@ object ProfileRoute
 object EventsManagementRoute
 
 @Serializable
+object CheckInRoute
+
+@Serializable
 data class ViewEventRoute(
     val id: String,
     val title: String,
@@ -36,6 +39,9 @@ data class ViewEventRoute(
     val isLive: Boolean,
     val attendees: Int = 0,
 )
+
+private val EmphasizedEasing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1.0f)
+private const val AnimationDuration = 600
 
 @Composable
 fun UniVerseNavHost(
@@ -48,30 +54,30 @@ fun UniVerseNavHost(
         enterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                animationSpec = tween(500, easing = FastOutSlowInEasing)
-            ) + fadeIn(animationSpec = tween(500))
+                animationSpec = tween(AnimationDuration, easing = EmphasizedEasing)
+            ) + fadeIn(animationSpec = tween(AnimationDuration))
         },
         exitTransition = {
-            // Parallax effect: the exiting screen moves only 30% of the way
             slideOutOfContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                targetOffset = { it / 3 },
-                animationSpec = tween(500, easing = FastOutSlowInEasing)
-            ) + scaleOut(targetScale = 0.9f, animationSpec = tween(500)) + fadeOut(animationSpec = tween(500))
+                targetOffset = { -it / 3 },
+                animationSpec = tween(AnimationDuration, easing = EmphasizedEasing)
+            ) + scaleOut(targetScale = 0.92f, animationSpec = tween(AnimationDuration, easing = EmphasizedEasing)) +
+                    fadeOut(animationSpec = tween(AnimationDuration / 2))
         },
         popEnterTransition = {
-            // Parallax effect: the entering screen starts 30% offset
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.End,
-                initialOffset = { it / 3 },
-                animationSpec = tween(500, easing = FastOutSlowInEasing)
-            ) + scaleIn(initialScale = 0.9f, animationSpec = tween(500)) + fadeIn(animationSpec = tween(500))
+                initialOffset = { -it / 3 },
+                animationSpec = tween(AnimationDuration, easing = EmphasizedEasing)
+            ) + scaleIn(initialScale = 0.92f, animationSpec = tween(AnimationDuration, easing = EmphasizedEasing)) +
+                    fadeIn(animationSpec = tween(AnimationDuration))
         },
         popExitTransition = {
             slideOutOfContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.End,
-                animationSpec = tween(500, easing = FastOutSlowInEasing)
-            ) + fadeOut(animationSpec = tween(500))
+                animationSpec = tween(AnimationDuration, easing = EmphasizedEasing)
+            ) + fadeOut(animationSpec = tween(AnimationDuration))
         }
     ) {
         composable<HomeRoute> {
@@ -79,6 +85,7 @@ fun UniVerseNavHost(
                 viewModel = eventViewModel,
                 onProfileClick = { navController.navigate(ProfileRoute) },
                 onEventsClick = { navController.navigate(EventsManagementRoute) },
+                onCheckInClick = { navController.navigate(CheckInRoute) },
                 onEventClick = { event ->
                     navController.navigate(
                         ViewEventRoute(
@@ -118,6 +125,13 @@ fun UniVerseNavHost(
                         )
                     )
                 }
+            )
+        }
+
+        composable<CheckInRoute> {
+            CheckInScreen(
+                viewModel = eventViewModel,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

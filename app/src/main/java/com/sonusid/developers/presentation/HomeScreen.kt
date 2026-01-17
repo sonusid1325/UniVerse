@@ -1,6 +1,5 @@
 package com.sonusid.developers.presentation
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -39,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sonusid.developers.R
 import com.sonusid.developers.components.EventCard
@@ -49,7 +46,6 @@ import com.sonusid.developers.components.WelcomeCard
 import com.sonusid.developers.modals.ActionIcon
 import com.sonusid.developers.modals.Event
 import com.sonusid.developers.modals.QuickAction
-import com.sonusid.developers.ui.theme.UniVerseTheme
 import com.sonusid.developers.viewmodels.EventViewModel
 
 
@@ -59,6 +55,7 @@ fun HomeScreen(
     viewModel: EventViewModel,
     onProfileClick: () -> Unit = {},
     onEventsClick: () -> Unit = {},
+    onCheckInClick: () -> Unit = {},
     onEventClick: (Event) -> Unit = {}
 ) {
     val events = viewModel.events
@@ -70,7 +67,7 @@ fun HomeScreen(
                 ActionIcon.Drawable(R.drawable.scan_qr_code),
                 Color(0xFF4CAF50),
                 Color(0xFFE8F5E9),
-                {}
+                onCheckInClick
             ),
             QuickAction("Events", ActionIcon.Drawable(R.drawable.calendar), Color(0xFF2196F3), Color(0xFFE3F2FD), onEventsClick),
             QuickAction("Community", ActionIcon.Drawable(R.drawable.user_round), Color(0xFF9C27B0), Color(0xFFF3E5F5), {}),
@@ -131,7 +128,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { /* Quick check-in */ },
+                onClick = onCheckInClick,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(16.dp),
