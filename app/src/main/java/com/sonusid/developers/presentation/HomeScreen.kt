@@ -50,20 +50,18 @@ import com.sonusid.developers.modals.ActionIcon
 import com.sonusid.developers.modals.Event
 import com.sonusid.developers.modals.QuickAction
 import com.sonusid.developers.ui.theme.UniVerseTheme
+import com.sonusid.developers.viewmodels.EventViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onProfileClick: () -> Unit = {},
-               onEventsClick: () -> Unit = {}) {
-    val events = remember {
-        listOf(
-            Event("1", "Tech Workshop", "Today", "2:00 PM", "Room 301", 45, "Workshop", true),
-            Event("2", "Coding Bootcamp", "Tomorrow", "10:00 AM", "Lab A", 32, "Education"),
-            Event("3", "Hackathon Meetup", "Sat, Jan 18", "9:00 AM", "Main Hall", 78, "Competition"),
-            Event("4", "Design Sprint", "Mon, Jan 20", "3:00 PM", "Creative Space", 24, "Design")
-        )
-    }
+fun HomeScreen(
+    viewModel: EventViewModel,
+    onProfileClick: () -> Unit = {},
+    onEventsClick: () -> Unit = {},
+    onEventClick: (Event) -> Unit = {}
+) {
+    val events = viewModel.events
 
     val quickActions = remember {
         listOf(
@@ -174,7 +172,7 @@ fun HomeScreen(onProfileClick: () -> Unit = {},
             }
 
             items(events.filter { it.isLive }) { event ->
-                EventCard(event)
+                EventCard(event, onClick = { onEventClick(event) })
             }
 
             // Upcoming Section
@@ -183,7 +181,7 @@ fun HomeScreen(onProfileClick: () -> Unit = {},
             }
 
             items(events.filter { !it.isLive }) { event ->
-                EventCard(event)
+                EventCard(event, onClick = { onEventClick(event) })
             }
 
             // Bottom spacing for FAB
@@ -193,25 +191,3 @@ fun HomeScreen(onProfileClick: () -> Unit = {},
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    UniVerseTheme{
-        Surface(color = MaterialTheme.colorScheme.background) {
-            HomeScreen()
-        }
-    }
-}
-@Preview(showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
-)
-@Composable
-fun HomeScreenPreviewDark() {
-    UniVerseTheme{
-        Surface(color = MaterialTheme.colorScheme.background) {
-            HomeScreen()
-        }
-    }
-}
-

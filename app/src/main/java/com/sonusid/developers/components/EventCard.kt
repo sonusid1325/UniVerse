@@ -36,15 +36,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sonusid.developers.modals.Event
-import kotlin.text.uppercase
-
 
 @Composable
-fun EventCard(event: Event) {
+fun EventCard(event: Event, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* Open event details */ },
+            .clickable { onClick() },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
@@ -162,7 +160,7 @@ fun EventCard(event: Event) {
                     }
 
                     IconButton(
-                        onClick = { /* Join */ },
+                        onClick = onClick,
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
